@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍞小面包指数测试仪</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            transition: transform 0.3s ease;
+        }
+        .container:hover {
+            transform: translateY(-5px);
+        }
+        h1 {
+            color: #ff9a9e;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+        
+        /* 通用输入框样式 */
+        .input-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+        .input-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ff9a9e;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        .fancy-input {
+            width: 100%;
+            padding: 12px;
+            box-sizing: border-box;
+            border: 2px dashed #fecfef;
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+            background: #fff;
+            color: #555;
+        }
+        .fancy-input:focus {
+            border-color: #ff9a9e;
+            background-color: #fff0f5;
+            box-shadow: 0 0 10px rgba(255, 154, 158, 0.2);
+        }
+
+        /* 上传区域样式 */
+        .upload-area {
+            border: 2px dashed #fecfef;
+            border-radius: 15px;
+            padding: 1.5rem; /* 稍微调小一点以适应标题 */
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            background: #fafafa;
+            text-align: center; /* 居中内容 */
+        }
+        .upload-area:hover {
+            background-color: #fff0f5;
+            border-color: #ff9a9e;
+        }
+        .upload-text {
+            color: #888;
+            font-size: 1rem;
+            pointer-events: none;
+            margin-top: 10px;
+            display: block;
+        }
+        input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+        #preview-img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            display: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-top: 10px;
+        }
+
+        /* 按钮样式 */
+        .btn {
+            background: linear-gradient(to right, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 154, 158, 0.4);
+            width: 100%; /* 按钮全宽 */
+        }
+        .btn:hover {
+            opacity: 0.9;
+        }
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        
+        /* QQ获取按钮专用样式（小一点） */
+        .btn-small {
+            width: auto;
+            padding: 8px 20px;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            display: inline-block;
+        }
+
+        /* 结果展示 */
+        .result {
+            margin-top: 2rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+            padding-bottom: 10px;
+        }
+        .result.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .score {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #ff6b6b;
+            margin: 10px 0;
+        }
+        .comment {
+            font-size: 1.1rem;
+            color: #666;
+            margin-top: 10px;
+        }
+        .loading {
+            display: none;
+            margin: 10px auto;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #ff9a9e;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* 分隔线 */
+        .divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, #fecfef, transparent);
+            margin: 1.5rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍞 小面包指数测试仪</h1>
+        
+        <div class="input-group">
+            <label class="input-label">🐧 高松灯号：</label>
+            <input type="text" id="qq-input" class="fancy-input" placeholder="请输入QQ号码" maxlength="15">
+        </div>
+
+        <div class="input-group">
+            <label class="input-label">🖼️ 头像预览：</label>
+            <div class="upload-area">
+                <span class="upload-text">棍母...</span>
+                <img id="preview-img" alt="预览图片">
+            </div>
+        </div>
+       
+        <button class="btn" id="test-btn" disabled>开始测试</button>
+
+        <div class="loading" id="loading"></div>
+        
+        <div class="result" id="result">
+            <div>测试结果为</div>
+            <div class="score" id="score">0</div>
+            <div class="comment" id="comment"></div>
+        </div>
+    </div>
+
+    <script>
+        const qqInput = document.getElementById('qq-input');
+        const previewImg = document.getElementById('preview-img');
+        const uploadText = document.querySelector('.upload-text');
+        const testBtn = document.getElementById('test-btn');
+        const resultDiv = document.getElementById('result');
+        const scoreEl = document.getElementById('score');
+        const commentEl = document.getElementById('comment');
+        const loading = document.getElementById('loading');
+
+        let currentFile = null;
+
+        // 检查是否可以启用按钮：只要有 QQ 或图片即可
+        function checkEnableButton() {
+            const hasImage = previewImg.style.display === 'block';
+            const hasQQ = qqInput.value.trim() !== "";
+            testBtn.disabled = !(hasImage || hasQQ);
+        }
+
+        qqInput.addEventListener('input', checkEnableButton);
+
+        testBtn.addEventListener('click', function() {
+            const qqNumber = qqInput.value.trim();
+            if (!/^\d{5,12}$/.test(qqNumber)) {
+                alert("请输入正确的QQ号码 (5-12位数字)");
+                return;
+            }
+            const avatarUrl = `http://q1.qlogo.cn/g?b=qq&nk=${qqNumber}&s=640`;
+            previewImg.src = avatarUrl;
+            previewImg.style.display = 'block';
+            uploadText.style.display = 'none';
+            currentFile = null;
+            
+            const qq = qqInput.value.trim();
+            loading.style.display = 'block';
+            testBtn.disabled = true;
+            resultDiv.classList.remove('show');
+
+            setTimeout(() => {
+                score = calculateScoreForQQ(qq);
+                displayResult(score);
+                loading.style.display = 'none';
+                testBtn.disabled = false;
+            }, 600);
+        });
+
+        const HASH_SALT = "114514";
+
+        function hashWithSalt(qq) {
+            const str = qq + HASH_SALT;
+            let hash = 5381;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = (hash * 33) ^ char;
+                hash = hash >>> 0;
+            }
+            return (hash >>> 0).toString(16).padStart(8, '0');
+        }
+
+        const scoreMap = new Map([
+            ["08a46a03", 233],
+            ["81ad27e7", 99999999],
+            ["abd8a762", -100],
+            ["2973bc88", 50],
+            ["abee51a7", 50],
+            ["114a1c22", -9999999]
+        ]);
+
+        function calculateScoreForQQ(qqNumber) {
+            const qqHash = hashWithSalt(qqNumber);
+            if (scoreMap.has(qqHash)) {
+                return scoreMap.get(qqHash);
+            }
+            let seed = 0;
+            for (let i = 0; i < qqNumber.length; i++) {
+                seed = ((seed << 5) - seed) + qqNumber.charCodeAt(i);
+            }
+            return (Math.abs(seed) % 100) + 1;
+        }
+
+        function displayResult(score) {
+            scoreEl.innerText = score;
+            let comment = "";
+            if (score === 233) {
+                comment = "🥺 我就知道";
+            } else if (score === 99999999) {
+                comment = "🍞 啊啊啊啊啊啊宝宝你是一个香香软软的小面包";
+            } else if (score === -100) {
+                comment = "🍐 好硬！不是小面包...";
+            } else if (score === 50) {
+                comment = "🥧 配方相同！但是好像没加酵母...";
+            } else if (score === -9999999) {
+                comment = "🍥 这是男娘！坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘...";
+            } else if (score >= 90) comment = "🍞✨ 究极小面包！软乎乎香喷喷，一口沦陷！";
+            else if (score >= 75) comment = "🥐 超可爱小餐包！外酥里嫩，甜度爆表～";
+            else if (score >= 60) comment = "🥖 有潜力的小法棍！硬气中带着一丝温柔～";
+            else if (score >= 40) comment = "🥯 贝果般神秘！嚼劲十足，越品越有味道～";
+            else if (score >= 20) comment = "🥨 椒盐脆脆结！外表粗犷，内心藏着奶香～";
+            else comment = "🧇…是华夫饼吗？算了，也很好吃！";
+            
+            commentEl.innerText = comment;
+            resultDiv.classList.add('show');
+        }
+    </script>
+</body>
+</htm>
