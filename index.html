@@ -275,8 +275,8 @@
             ["08a46a03", 233],
             ["81ad27e7", 99999999],
             ["abd8a762", -100],
-            ["2973bc88", 50],
-            ["abee51a7", 50],
+            ["2973bc88", -50],
+            ["abee51a7", -50],
             ["114a1c22", -9999999]
         ]);
 
@@ -295,17 +295,13 @@
         function displayResult(score) {
             scoreEl.innerText = score;
             let comment = "";
-            if (score === 233) {
-                comment = "🥺 我就知道";
-            } else if (score === 99999999) {
-                comment = "🍞 啊啊啊啊啊啊宝宝你是一个香香软软的小面包";
-            } else if (score === -100) {
-                comment = "🍐 好硬！不是小面包...";
-            } else if (score === 50) {
-                comment = "🥧 配方相同！但是好像没加酵母...";
-            } else if (score === -9999999) {
-                comment = "🍥 这是男娘！坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘...";
-            } else if (score >= 90) comment = "🍞✨ 究极小面包！软乎乎香喷喷，一口沦陷！";
+            
+            if (score === 233) comment = "🥺 我就知道"; 
+            else if (score === 99999999) comment = "🍞 啊啊啊啊啊啊宝宝你是一个香香软软的小面包";
+            else if (score === -100) comment = "🍐 好硬！不是小面包...";
+            else if (score === -50) comment = "🥧 配方相同！但是好像没加酵母...";
+            else if (score === -9999999) comment = "🍥 这是男娘！坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘坏男娘...";
+            else if (score >= 90) comment = "🍞✨ 究极小面包！软乎乎香喷喷，一口沦陷！";
             else if (score >= 75) comment = "🥐 超可爱小餐包！外酥里嫩，甜度爆表～";
             else if (score >= 60) comment = "🥖 有潜力的小法棍！硬气中带着一丝温柔～";
             else if (score >= 40) comment = "🥯 贝果般神秘！嚼劲十足，越品越有味道～";
