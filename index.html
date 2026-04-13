@@ -68,13 +68,14 @@
         .upload-area {
             border: 2px dashed #fecfef;
             border-radius: 15px;
-            padding: 2rem;
+            padding: 1.5rem; /* 稍微调小一点以适应标题 */
             cursor: pointer;
             transition: all 0.3s ease;
             margin-bottom: 1.5rem;
             position: relative;
             overflow: hidden;
             background: #fafafa;
+            text-align: center; /* 居中内容 */
         }
         .upload-area:hover {
             background-color: #fff0f5;
@@ -84,6 +85,8 @@
             color: #888;
             font-size: 1rem;
             pointer-events: none;
+            margin-top: 10px;
+            display: block;
         }
         input[type="file"] {
             position: absolute;
@@ -124,6 +127,15 @@
             background: #ccc;
             cursor: not-allowed;
             box-shadow: none;
+        }
+        
+        /* QQ获取按钮专用样式（小一点） */
+        .btn-small {
+            width: auto;
+            padding: 8px 20px;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            display: inline-block;
         }
 
         /* 结果展示 */
@@ -170,17 +182,6 @@
             background: linear-gradient(to right, transparent, #fecfef, transparent);
             margin: 1.5rem 0;
         }
-        .divider-text {
-            text-align: center;
-            color: #ccc;
-            font-size: 0.8rem;
-            margin-top: -10px;
-            background: white;
-            display: inline-block;
-            padding: 0 10px;
-            position: relative;
-            z-index: 1;
-        }
     </style>
 </head>
 <body>
@@ -204,11 +205,13 @@
             <img id="preview-img" alt="预览图片">
             <input type="file" id="file-input" accept="image/*">
         </div>
-
+       
         <!-- 3. QQ号辅助 -->
-        <div class="input-group" style="margin-top: 1rem;">
+        <div class="input-group">
             <label class="input-label">🐧 或者输入QQ号获取头像：</label>
             <input type="text" id="qq-input" class="fancy-input" placeholder="请输入QQ号码" maxlength="15">
+            <!-- 恢复获取按钮 -->
+            <button class="btn btn-small" id="fetch-btn">获取QQ头像</button>
         </div>
 
         <!-- 4. 统一的测试按钮 -->
@@ -227,6 +230,7 @@
         // DOM 元素获取
         const nameInput = document.getElementById('name-input');
         const qqInput = document.getElementById('qq-input');
+        const fetchBtn = document.getElementById('fetch-btn'); // 获取QQ头像按钮
         const fileInput = document.getElementById('file-input');
         const previewImg = document.getElementById('preview-img');
         const uploadText = document.getElementById('upload-text');
@@ -256,12 +260,22 @@
         nameInput.addEventListener('input', checkEnableButton);
         qqInput.addEventListener('input', function() {
             checkEnableButton();
-            // 如果输入了QQ，自动清除图片预览，避免冲突（可选逻辑）
-            if(qqInput.value.trim() !== "") {
-                previewImg.style.display = 'none';
-                uploadText.style.display = 'block';
-                currentFile = null;
+        });
+
+        // 监听获取QQ头像按钮点击
+        fetchBtn.addEventListener('click', function() {
+            const qqNumber = qqInput.value.trim();
+            if (!/^\d{5,12}$/.test(qqNumber)) {
+                alert("请输入正确的QQ号码 (5-12位数字)");
+                return;
             }
+            // 构建QQ头像URL
+            const avatarUrl = `http://q1.qlogo.cn/g?b=qq&nk=${qqNumber}&s=640`;
+            previewImg.src = avatarUrl;
+            previewImg.style.display = 'block';
+            uploadText.style.display = 'none'; // 隐藏文字
+            currentFile = null; // 标记这不是本地文件
+            checkEnableButton();
         });
 
         // 监听文件选择
@@ -308,7 +322,6 @@
                     // 纯名字模式
                     score = calculateScoreForName(name);
                 } else {
-                    // 兜底（理论上不会触发，因为按钮被禁用了）
                     score = 0;
                 }
 
@@ -345,7 +358,6 @@
         function calculateScoreForName(name) {
             let seed = name.length;
             for (let i = 0; i < name.length; i++) {
-                // 简单的字符码求和，加上位置权重
                 seed += name.charCodeAt(i) * (i + 1);
             }
             return (Math.abs(seed) % 100) + 1;
