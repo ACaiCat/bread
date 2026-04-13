@@ -15,7 +15,6 @@
             margin: 0;
             color: #333;
         }
-
         .container {
             background: white;
             padding: 2rem;
@@ -26,17 +25,14 @@
             width: 90%;
             transition: transform 0.3s ease;
         }
-
         .container:hover {
             transform: translateY(-5px);
         }
-
         h1 {
             color: #ff9a9e;
             margin-bottom: 1.5rem;
             font-size: 1.8rem;
         }
-
         .upload-area {
             border: 2px dashed #fecfef;
             border-radius: 15px;
@@ -47,18 +43,15 @@
             position: relative;
             overflow: hidden;
         }
-
         .upload-area:hover {
             background-color: #fff0f5;
             border-color: #ff9a9e;
         }
-
         .upload-text {
             color: #888;
             font-size: 1rem;
             pointer-events: none;
         }
-
         input[type="file"] {
             position: absolute;
             width: 100%;
@@ -68,7 +61,6 @@
             opacity: 0;
             cursor: pointer;
         }
-
         #preview-img {
             max-width: 100%;
             max-height: 300px;
@@ -76,7 +68,6 @@
             display: none;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-
         .btn {
             background: linear-gradient(to right, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
             border: none;
@@ -89,42 +80,35 @@
             transition: opacity 0.3s ease;
             box-shadow: 0 4px 15px rgba(255, 154, 158, 0.4);
         }
-
         .btn:hover {
             opacity: 0.9;
         }
-
         .btn:disabled {
             background: #ccc;
             cursor: not-allowed;
             box-shadow: none;
         }
-
         .result {
             margin-top: 2rem;
             opacity: 0;
             transform: translateY(20px);
             transition: all 0.5s ease;
         }
-
         .result.show {
             opacity: 1;
             transform: translateY(0);
         }
-
         .score {
             font-size: 3rem;
             font-weight: bold;
             color: #ff6b6b;
             margin: 10px 0;
         }
-
         .comment {
             font-size: 1.1rem;
             color: #666;
             margin-top: 10px;
         }
-
         .loading {
             display: none;
             margin: 10px auto;
@@ -135,121 +119,183 @@
             height: 30px;
             animation: spin 1s linear infinite;
         }
-
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        /* 新增：QQ输入框样式，模仿原UI风格 */
+        .qq-input-area {
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid #fecfef;
+        }
+        #qq-input {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 2px dashed #fecfef;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        #qq-input:focus {
+            border-color: #ff9a9e;
+            background-color: #fff0f5;
+        }
+        .qq-tip {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
+    <div class="container">
+        <h1>✨ 小男娘指数测试仪 ✨</h1>
+        
+        <!-- 原有的上传区域 -->
+        <div class="upload-area">
+            <div class="upload-text" id="upload-text">点击或拖拽上传头像</div>
+            <img id="preview-img" alt="预览图片">
+            <input type="file" id="file-input" accept="image/*">
+        </div>
 
-<div class="container">
-    <h1>✨ 小男娘指数测试仪 ✨</h1>
-    
-    <div class="upload-area">
-        <div class="upload-text" id="upload-text">点击或拖拽上传头像</div>
-        <img id="preview-img" alt="预览图片">
-        <input type="file" id="file-input" accept="image/*">
+        <!-- 新增：QQ号输入区域 -->
+        <div class="qq-input-area">
+            <div class="qq-tip">或者输入QQ号获取头像：</div>
+            <input type="text" id="qq-input" placeholder="请输入QQ号码" maxlength="15">
+            <button class="btn" id="fetch-btn">获取QQ头像</button>
+        </div>
+
+        <div class="loading" id="loading"></div>
+        <button class="btn" id="test-btn" disabled>开始测试</button>
+        
+        <div class="result" id="result">
+            <div>你的小男娘指数为</div>
+            <div class="score" id="score">0</div>
+            <div class="comment" id="comment"></div>
+        </div>
     </div>
 
-    <div class="loading" id="loading"></div>
+    <script>
+        // 获取原有DOM元素
+        const fileInput = document.getElementById('file-input');
+        const previewImg = document.getElementById('preview-img');
+        const uploadText = document.getElementById('upload-text');
+        const testBtn = document.getElementById('test-btn');
+        const resultDiv = document.getElementById('result');
+        const scoreEl = document.getElementById('score');
+        const commentEl = document.getElementById('comment');
+        const loading = document.getElementById('loading');
+        
+        // 获取新增的QQ相关DOM
+        const qqInput = document.getElementById('qq-input');
+        const fetchBtn = document.getElementById('fetch-btn');
 
-    <button class="btn" id="test-btn" disabled>开始测试</button>
+        let currentFile = null; // 用于存储本地文件
 
-    <div class="result" id="result">
-        <div>你的小男娘指数为</div>
-        <div class="score" id="score">0</div>
-        <div class="comment" id="comment"></div>
-    </div>
-</div>
-
-<script>
-    const fileInput = document.getElementById('file-input');
-    const previewImg = document.getElementById('preview-img');
-    const uploadText = document.getElementById('upload-text');
-    const testBtn = document.getElementById('test-btn');
-    const resultDiv = document.getElementById('result');
-    const scoreEl = document.getElementById('score');
-    const commentEl = document.getElementById('comment');
-    const loading = document.getElementById('loading');
-
-    let currentFile = null;
-
-    // 监听文件选择
-    fileInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            currentFile = file;
-            const reader = new FileReader();
-            
-            reader.onload = function(event) {
-                previewImg.src = event.target.result;
-                previewImg.style.display = 'block';
-                uploadText.style.display = 'none';
-                testBtn.disabled = false;
-                resultDiv.classList.remove('show'); // 隐藏旧结果
+        // 监听文件选择 (原有逻辑)
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                currentFile = file;
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    previewImg.src = event.target.result;
+                    previewImg.style.display = 'block';
+                    uploadText.style.display = 'none';
+                    testBtn.disabled = false;
+                    resultDiv.classList.remove('show');
+                }
+                reader.readAsDataURL(file);
             }
+        });
+
+        // 新增：监听QQ头像获取按钮 (已修复)
+        fetchBtn.addEventListener('click', function() {
+            const qqNumber = qqInput.value.trim();
             
-            reader.readAsDataURL(file);
-        }
-    });
+            // 简单的QQ号验证
+            if (!/^\d{5,12}$/.test(qqNumber)) {
+                alert("请输入正确的QQ号码 (5-12位数字)");
+                return;
+            }
 
-    // 监听测试按钮点击
-    testBtn.addEventListener('click', function() {
-        if (!currentFile) return;
+            // 构建QQ头像URL
+            const avatarUrl = `http://q1.qlogo.cn/g?b=qq&nk=${qqNumber}&s=640`;
 
-        // 显示加载动画
-        loading.style.display = 'block';
-        testBtn.disabled = true;
-        resultDiv.classList.remove('show');
-
-        // 模拟计算延迟，增加仪式感 (实际计算是瞬间的)
-        setTimeout(() => {
-            const score = calculateScore(currentFile);
-            displayResult(score);
-            
-            loading.style.display = 'none';
+            // 直接设置图片源
+            previewImg.src = avatarUrl;
+            previewImg.style.display = 'block';
+            uploadText.style.display = 'none';
             testBtn.disabled = false;
-        }, 800);
-    });
+            resultDiv.classList.remove('show');
+            
+            // 重置currentFile，表示这是网络图片
+            currentFile = null;
+        });
 
-    /**
-     * 核心算法：基于文件内容的确定性哈希
-     * 保证同一张图片永远得到同一个分数
-     */
-    function calculateScore(file) {
-        // 1. 获取文件名和大小作为种子的一部分
-        let seed = file.name.length + file.size;
-        
-        // 2. 简单的字符串哈希算法 (DJB2)
-        // 我们对文件名进行哈希，确保相同文件名也有固定扰动
-        for (let i = 0; i < file.name.length; i++) {
-            seed = ((seed << 5) + seed) + file.name.charCodeAt(i);
+        // 监听测试按钮点击
+        testBtn.addEventListener('click', function() {
+            if (!previewImg.src) return;
+            
+            // 显示加载动画
+            loading.style.display = 'block';
+            testBtn.disabled = true;
+            resultDiv.classList.remove('show');
+
+            // 模拟计算延迟
+            setTimeout(() => {
+                let score;
+                if (currentFile) {
+                    // 本地上传：使用原有算法
+                    score = calculateScore(currentFile);
+                } else {
+                    // QQ头像：基于QQ号生成分数 (确保同一QQ号分数固定)
+                    const qqSeed = qqInput.value.trim();
+                    // 简单的哈希生成
+                    let seed = 0;
+                    for (let i = 0; i < qqSeed.length; i++) {
+                        seed = ((seed << 5) - seed) + qqSeed.charCodeAt(i);
+                    }
+                    score = (Math.abs(seed) % 100) + 1;
+                }
+                displayResult(score);
+                loading.style.display = 'none';
+                testBtn.disabled = false;
+            }, 800);
+        });
+
+        /**
+         * 核心算法：基于文件内容的确定性哈希
+         */
+        function calculateScore(file) {
+            let seed = file.name.length + file.size;
+            for (let i = 0; i < file.name.length; i++) {
+                seed = ((seed << 5) + seed) + file.name.charCodeAt(i);
+            }
+            let result = (Math.abs(seed) % 100) + 1;
+            return result;
         }
 
-        // 3. 将哈希值映射到 1-100 之间
-        // 使用 Math.abs 确保为正数，然后取模
-        let result = (Math.abs(seed) % 100) + 1;
-        
-        return result;
-    }
-
-    function displayResult(score) {
-        scoreEl.innerText = score;
-        
-        let comment = "";
-        if (score >= 90) comment = "🌸 纯度极高，究极生物！";
-        else if (score >= 75) comment = "✨ 可爱到犯规，由于太可爱被原谅了";
-        else if (score >= 60) comment = "🎀 很有潜力，伪娘力max";
-        else if (score >= 40) comment = "⚖️ 薛定谔的性别，让人捉摸不透";
-        else if (score >= 20) comment = "💪 猛男气息溢出，但眼神里藏着秘密";
-        else comment = "🗿 纯爷们...大概吧？";
-
-        commentEl.innerText = comment;
-        resultDiv.classList.add('show');
-    }
-</script>
-
+        function displayResult(score) {
+            scoreEl.innerText = score;
+            let comment = "";
+            if (score >= 90) comment = "🌸 纯度极高，究极生物！";
+            else if (score >= 75) comment = "✨ 可爱到犯规，由于太可爱被原谅了";
+            else if (score >= 60) comment = "🎀 很有潜力，伪娘力max";
+            else if (score >= 40) comment = "⚖️ 薛定谔的性别，让人捉摸不透";
+            else if (score >= 20) comment = "💪 猛男气息溢出，但眼神里藏着秘密";
+            else comment = "🗿 纯爷们...大概吧？";
+            commentEl.innerText = comment;
+            resultDiv.classList.add('show');
+        }
+    </script>
 </body>
 </html>
