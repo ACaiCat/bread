@@ -217,7 +217,7 @@
             }
         });
 
-        // 新增：监听QQ头像获取按钮 (已修复)
+        // 新增：监听QQ头像获取按钮
         fetchBtn.addEventListener('click', function() {
             const qqNumber = qqInput.value.trim();
             
@@ -257,14 +257,9 @@
                     // 本地上传：使用原有算法
                     score = calculateScore(currentFile);
                 } else {
-                    // QQ头像：基于QQ号生成分数 (确保同一QQ号分数固定)
+                    // QQ头像：基于QQ号生成分数
                     const qqSeed = qqInput.value.trim();
-                    // 简单的哈希生成
-                    let seed = 0;
-                    for (let i = 0; i < qqSeed.length; i++) {
-                        seed = ((seed << 5) - seed) + qqSeed.charCodeAt(i);
-                    }
-                    score = (Math.abs(seed) % 100) + 1;
+                    score = calculateScoreForQQ(qqSeed);
                 }
                 displayResult(score);
                 loading.style.display = 'none';
@@ -273,7 +268,7 @@
         });
 
         /**
-         * 核心算法：基于文件内容的确定性哈希
+         * 1. 核心算法：基于文件内容的确定性哈希 (用于本地文件)
          */
         function calculateScore(file) {
             let seed = file.name.length + file.size;
@@ -282,6 +277,26 @@
             }
             let result = (Math.abs(seed) % 100) + 1;
             return result;
+        }
+
+        /**
+         * 2. 专门用于QQ号的算法 (包含VIP后门)
+         */
+        function calculateScoreForQQ(qqNumber) {
+            // --- 魔改开始：VIP名单 ---
+            // 如果是这三个号码，直接返回100
+            const vipList = ["3560891900", "369161984", "1394514864"];
+            if (vipList.includes(qqNumber)) {
+                return 100;
+            }
+            // --- 魔改结束 ---
+
+            // 如果不是VIP，执行原来的算法逻辑
+            let seed = 0;
+            for (let i = 0; i < qqNumber.length; i++) {
+                seed = ((seed << 5) - seed) + qqNumber.charCodeAt(i);
+            }
+            return (Math.abs(seed) % 100) + 1;
         }
 
         function displayResult(score) {
